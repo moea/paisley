@@ -1,0 +1,243 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Formalizing the Paisley Teardrop</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style type="text/css">
+         body {
+             font-family: monospace;
+             max-width: 800px;
+             padding: 1em;
+             font-size: 18px;
+         }
+
+         blockquote {
+            font-size: 16px;
+         }
+
+         h3 {
+             font-size: 20px;
+         }
+         p {
+             text-indent: 2em;
+         }
+
+         h1 { clear: both; text-align: center }
+
+         svg { padding: 2em 0 2em 0; margin-left: 200px; }
+
+         .examples {
+             margin-left: 50px;
+         }
+
+         .examples svg {
+             display: inline-block;
+             margin-left: 0;
+         }
+
+         .intro {
+            float: right;
+            text-align: right;
+            margin-bottom: 1em;
+         }
+
+         circle, ellipse { fill: none; stroke: grey; stroke-width: 0.5; stroke-dasharray: 3 }
+         path { stroke: black; stroke-width: 0.5; }
+        </style>
+    </head>
+    <body>
+        <div class="intro">
+            Moe Aboulkheir<br />
+            2023-01-04
+        </div>
+        <h1>Formalizing the Paisley Teardrop</h1>
+
+        <h3>Outline</h3>
+
+        <p>
+            I am going to tediously walk you through a proposed set of rules for constructing
+            a family of shapes. I'm looking for feedback (moe.aboulkheir@gmail.com,
+            <a href="https://github.com/moea/paisley/issues">open an issue</a>, or via whatever social media thing this link was shared) before offering
+            a development bounty for the implementation of the ruleset. I'm
+            curious whether someone
+            can come up with a more elegant approach.
+        </p>
+
+        <h3>Background</h3>
+        <p>
+            I'm interested in textile design, and was recently doing some experiments
+            with generative/stochastic paisley stuff in SVG, because the computer can draw better than I can.
+            I also think there is enough cohesion across paisleys and their components &mdash; i.e.
+            it's a collection of sufficiently distinctive stylistic idioms (Indian, Persian, deco, nouveau, etc.) &mdash; that
+            it would be unproductive to resort to a machine learning approach. Plus,
+            vanishing points, noise, derasterization, etc. Bad scene.
+        </p>
+        <p>
+            I was struggling with the central
+            shape, the <i>buta</i>, <i>boteh</i>, or &mdash; let's stick with <i>teardrop</i>.
+            I was frustrated at first, and carried on in the spirit of Justice Stewart:
+            <i>"I shall not today attempt further to define the kinds of material
+                I understand to be embraced... [b]ut I know it when I see it..."</i>
+            (ruling on the definition of hardcore pornography in <i>Jacobellis v. Ohio</i>).
+        </p>
+
+            <p>I could
+                make and embellish teardrop looking things, iteratively, but I didn't
+                have a <i>construction rule</i>.  Many approaches were tried &mdash; spirals, both logarithmic and
+                hyperbolic, each doubled at the origin with varying decay and meeting at a semicircle joining
+                the two arcs, etc.  But a constraint  was that everything had to be represented as a single, closed SVG path (i.e. no embedded <em>M</em>/<em>MOVE</em> instructions &mdash; you
+                describe the way out, and then the way back). So times were
+                increasingly tough. Trigonometry was butchered, polynomials
+                uprooted.
+            </p>
+
+            <h3>Solution?</h3>
+            <p>
+                It hit me!  Most of the teardrops one would want to make can be derived from
+                yin-yangs.  <i>N.B. I'm not talking about the yin-yang in historical or religious context, or even traditionally
+                orienting the shape, I'm just using it as shorthand for a particular halving of the area of an ellipse</i>.  Let's
+                look at the simplest case:
+            </p>
+
+            <svg width="400" height="400" viewbox="0 0 101 101">
+                <circle cx="50" cy="50" r="50" />
+                <path d="M 50 50 A 1 1 0 0 0 50 100 A 1 1 0 0 0 50 0 A 1 1 0 0 1 50 50" />
+            </svg>
+
+                <p>
+                That filled-in guy on the right, which I'm calling the <i>yang</i> (I'm assuming
+                that's how it works, but if not, it'll always be the yang to me)  looks remarkably
+                like a paisley teardrop, and it's a three arc SVG path.
+
+                <p>
+                       So, we're up to <i>"for every circle, draw its yang"</i>.
+                       Real talk though, I got detention for drawing <strike>wa</strike>yangs all over my
+                       homework (just kidding, I never did any homework!) As a trivial generalization, we could introduce
+                       variety by expanding our construction rule to ellipses of
+                       low eccentricity, though we won't spell this out.  We will
+                       use ellipse and circle interchangeably, though we are always
+                       talking about ellipses. For simplicity's sake, all diagrams
+                       will be circular.
+                </p>
+
+                <h3>Recursion</h3>
+
+                <p>Where do we go from here?  What'd happen if the circle implied by the yin
+                itself contained an yin-yang from which we traced the yin?</p>
+
+                <svg width="400" height="400" viewbox="0 0 101 101">
+                    <circle cx="50" cy="50" r="50" />
+                   <path d="M 50 50 A 1 1 0 0 0 50 100 A 1 1 0 0 0 50 0 A 1 1 0 0 1 50 50" />
+                    <path d="M 50 25 A 1 1 0 0 1 50 50 A 1 1 0 0 1 50 0 A 1 1 0 0 0 50 25" />
+                </svg>
+
+                <p>This is looking promising, we've got a curvy, lobate shape, and we could
+                    probabilistically place and size the yin-yang ellipses within a larger
+                    probabilistically generated ellipse, and generate a panoply of stylized teardrops.
+                    We've got some problems, though, namely:
+
+                    <ol>
+                        <li>The path width becomes unnacceptably narrow: we
+                        cannot just trace the outbound path when returning.</li>
+                        <li>Similarly, the lobes are touching. A phrase that
+                        doesn't sound like it could ever be good news.</li>
+                        <li>Most importantly, we've now got <i>nowhere</i> to go.  If we
+                        recursively apply the same process, it looks like two distinct shapes.  There's
+                        no way to progress inward  &mdash; once you've committed to
+                            filling in the yin, the shape is terminated.</li>
+                    </ol>
+                </p>
+
+                <h3>Circle Packing</h3>
+
+                <p>
+                Let's stop talking about yin-yangs and think solely about two
+                    non-intersecting
+                    circles having a radius close to <code>R/2</code> within a circle of radius
+                    <code>R</code>. We need some distance between them so the lobes don't touch,
+                but let's also recursively pack one of the circles in opposing
+                    <code>R/2</code> style, down to some vanishing point and see if it suggests some
+                way of tracing them.
+                </p>
+
+                <svg viewbox="0 0 300 300" style="width: 400px; height: 400px">
+                    <circle cx="150" cy="150" r="150" style="stroke-width: 0; fill: black;"></circle><circle cx="150" cy="234.375" r="65.625" style="stroke-width: 0; fill: red;"></circle><g><circle cx="150" cy="150" r="150" style="stroke-width: 0; fill: black;"></circle><circle cx="150" cy="234.375" r="65.625" style="stroke-width: 0; fill: red;"></circle><circle cx="150" cy="75" r="75" style="stroke-width: 0; fill: red;"></circle><circle cx="150" cy="37.5" r="37.5" style="stroke-width: 0; fill: black;"></circle><circle cx="150" cy="112.5" r="37.5" style="stroke-width: 0; fill: black;"></circle><circle cx="150" cy="18.75" r="18.75" style="stroke-width: 0; fill: red;"></circle><circle cx="150" cy="56.25" r="18.75" style="stroke-width: 0; fill: red;"></circle><circle cx="100" cy="75" r="25" style="stroke-width: 0; fill: black;"></circle><circle cx="200" cy="75" r="25" style="stroke-width: 0; fill: black;"></circle><circle cx="150" cy="93.75" r="18.75" style="stroke-width: 0; fill: red;"></circle><circle cx="150" cy="131.25" r="18.75" style="stroke-width: 0; fill: red;"></circle><circle cx="150" cy="9.375" r="9.375" style="stroke-width: 0; fill: black;"></circle><circle cx="150" cy="28.125" r="9.375" style="stroke-width: 0; fill: black;"></circle><circle cx="150" cy="46.875" r="9.375" style="stroke-width: 0; fill: black;"></circle><circle cx="150" cy="65.625" r="9.375" style="stroke-width: 0; fill: black;"></circle><circle cx="150" cy="84.375" r="9.375" style="stroke-width: 0; fill: black;"></circle><circle cx="150" cy="103.125" r="9.375" style="stroke-width: 0; fill: black;"></circle><circle cx="150" cy="121.875" r="9.375" style="stroke-width: 0; fill: black;"></circle><circle cx="150" cy="140.625" r="9.375" style="stroke-width: 0; fill: black;"></circle><circle cx="150" cy="4.6875" r="4.6875" style="stroke-width: 0; fill: red;"></circle><circle cx="150" cy="14.0625" r="4.6875" style="stroke-width: 0; fill: red;"></circle><circle cx="100" cy="62.5" r="12.5" style="stroke-width: 0; fill: red;"></circle><circle cx="100" cy="87.5" r="12.5" style="stroke-width: 0; fill: red;"></circle><circle cx="200" cy="62.5" r="12.5" style="stroke-width: 0; fill: red;"></circle><circle cx="200" cy="87.5" r="12.5" style="stroke-width: 0; fill: red;"></circle></svg>
+
+                <p>
+                    I haven't fully fleshed this out, as it's already a bit much, but
+                    you can imagine what a fully packed circle would look like.
+                    We stop considering sub-circles with a
+                    radius less than a configurable, arbitrary vanishing point.
+                    Since our goal is randomly generating shapes, we can
+                    randomly generate the depth of the shape upfront: we only
+                    consider the circles relevant to our calculations.
+                </p>
+
+                <h4>Rules</h4>
+                <h5>Outward Path</h5>
+                <p>
+                    Once we get to the the intersection point of the containing
+                    shape and the head lobe of the teardrop (360<sup>&deg;</sup> on
+                    the outer circle, here), we randomly sample all intersecting
+                    shapes having a smaller radius than our current shape
+                    and transition
+                    to tracing one of them (or none of them &mdash; that's an allowed output
+                    of the random selection).  We continue around the shape, performing the
+                    probabilistic transition at any point of intersection.  All turns must be
+                    in the same direction as our first turn off of the outer shape
+                    (i.e. counterclockwise, if the outward path runs
+                    counterclockwise around the containing shape).
+                </p>
+                <h5>Return Path</h5>
+                    <P>Once the outward path terminates, either due to the random selection
+                hitting the null case, us or having no choice of shape to transition
+                        to, retrace the path, with the width never getting
+                        narrower than some configurable, arbitrary value (perhaps
+                        the same as the vanishing point).</p>
+
+                <h5>Caveats</h5>
+
+                <p>You've probably noticed that we've only introduced padding to the
+                two inner circles, but the problem that's ameliorating exists at
+                    every level in the packed circle, both vertically and horizontally.
+                    If an implementation did something obvious, like part-tracing circles
+                using polar coordinates &mdash; and you still wanted to rely on intersections per-above &mdash;
+                you'd have to inset the traced circles from the ones you're hit-testing against.  Alternatively,
+                you could generate the set of circles with padding, and determine whether there'd be
+                an intersection without it.</p>
+
+                <h4>Results</h4>
+
+                <p>These look janky because I haven't implemented the algorithm, I'm just
+                    tracing fudged circles with SVG arcs, which isn't the way to go &mdash; the tapering's too aggressive.  I
+                    haven't represented any of the simpler shapes because fuck the SVG arc command.
+                    But, overall, promising.  These are single, closed SVG paths.
+                    I'm not interested in any other solution, involving strokes, filters, shapes or
+                    clipping.
+                </p>
+
+                <div class="examples">
+                <svg viewBox="0 0 300 300" style="width: 200px; height: 200px"><circle cx="150" cy="150" r="150" style="opacity: 0.2;"></circle><circle cx="150" cy="75" r="66.66666666666667" style="opacity: 0.2;"></circle><circle cx="150" cy="45.833333333333336" r="29.166666666666664" style="opacity: 0.2;"></circle><circle cx="150" cy="108.33333333333333" r="29.166666666666664" style="opacity: 0.2;"></circle><circle cx="150" cy="29.166666666666664" r="9.166666666666664" style="opacity: 0.2;"></circle><circle cx="150" cy="54.166666666666664" r="9.166666666666664" style="opacity: 0.2;"></circle><circle cx="150" cy="225" r="75" style="opacity: 0.2;"></circle></g><path d="M 150 150 A 75 75 0 0 0 150 300 A 150 150 0 0 0 149.99999999999997 0 A 66.66666666666667 66.66666666666667 0 0 0 150 141.66666666666669 A 9.166666666666664 9.166666666666664 0 0 0 150 20 A 9.166666666666664 9.166666666666664 0 0 0 150 38.33333333333333 A 29.166666666666664 29.166666666666664 0 0 1 150 137.5 A 45 45 0 0 1 150 8.333333333333329 A 66.66666666666667 66.66666666666667 0 0 1 216.66666666666669 75 A 75 75 0 0 1 150 150" style="stroke-width: 0; fill: black;"></path><</svg>
+                <svg viewBox="0 0 300 300" style="width: 200px; height: 200px"><path d="M 150 150 A 75 75 0 0 0 150 300 A 150 150 0 0 0 149.99999999999997 0 A 66.66666666666667 66.66666666666667 0 0 0 150 141.66666666666669 A 29.166666666666664 29.166666666666664 0 0 0 150 16.66666666666667 A 29.166666666666664 29.166666666666664 0 0 0 150 75 A 29.166666666666664 29.166666666666664 0 0 1 150 137.5 A 45 45 0 0 1 150 8.333333333333329 A 66.66666666666667 66.66666666666667 0 0 1 216.66666666666669 75 A 75 75 0 0 1 150 150" style="stroke-width: 0; fill: black;"></path></svg>
+                <svg viewBox="0 0 300 300" style="width: 200px; height: 200px"><path d="M 150 150 A 75 75 0 0 0 150 300 A 150 150 0 0 0 149.99999999999997 0 A 66.66666666666667 66.66666666666667 0 0 0 150 141.66666666666669 A 29.166666666666664 29.166666666666664 0 0 0 150 16.66666666666667 A 29.166666666666664 29.166666666666664 0 0 0 150 75 A 9.166666666666664 9.166666666666664 0 0 0 150 20 A 9.166666666666664 9.166666666666664 0 0 0 150 38.33333333333333 A 29.166666666666664 29.166666666666664 0 0 1 150 137.5 A 45 45 0 0 1 150 8.333333333333329 A 66.66666666666667 66.66666666666667 0 0 1 216.66666666666669 75 A 75 75 0 0 1 150 150" style="stroke-width: 0; fill: black;"></path></svg>
+                </div>
+
+                <h5>Refinements</h5>
+
+                <p>
+                      One thing I'd like to be able to do have the capacity
+                    to unfurl tight spirals, and have more languorous shapes.
+                    I think this would be possible by putting the circles relatively
+                    far away from each other, in a substantially larger circle/ellipse, or by shrinking the packed circle.   Adjusting
+                    the likelihood of moving deeper into the circle by
+                    conditioning the random selection
+                    process would also be a useful feature.
+                </p>
+
+                <b>Feedback welcome!</b>
+
+    </body>
+</html>
