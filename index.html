@@ -159,7 +159,7 @@
                     circles having a radius close to <code>R/2</code> within a circle of radius
                     <code>R</code>. We need some distance between them so the lobes don't touch,
                 but let's also recursively pack one of the circles in opposing
-                    <code>R/2</code> style, down to some vanishing point and see if it suggests some
+                    <code>R/2</code> style, and see if it suggests some
                 way of tracing them.
                 </p>
 
@@ -181,7 +181,7 @@
                 <p>
                     Once we get to the the intersection point of the containing
                     shape and the head lobe of the teardrop (360<sup>&deg;</sup> on
-                    the outer circle, here), we randomly sample all intersecting
+                    the outer circle, here), we randomly select from all intersecting
                     shapes having a smaller radius than our current shape
                     and transition
                     to tracing one of them (or none of them &mdash; that's an allowed output
