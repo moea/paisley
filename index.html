@@ -184,12 +184,16 @@
                     the outer circle, here), we randomly select from all intersecting
                     shapes having a smaller radius than our current shape
                     and transition
-                    to tracing one of them (or none of them &mdash; <i>continue</i> and <i>terminate</i> are allowed outputs
+                    to tracing one of them (or none of them &mdash; <i>continue<sup>1</sup></i> and <i>terminate</i> are allowed outputs
                     of the random selection).  We continue around the shape, performing the
                     probabilistic transition at any point of intersection.  All turns must be
                     in the same direction as our first turn off of the outer shape
                     (i.e. counterclockwise, if the outward path runs
                     counterclockwise around the containing shape).
+
+                    <br>
+                    <br>
+                    <b>1</b>: <i>continue</i> and <i>terminate</i> are obviously identical if there are no further point of intersection.
                 </p>
                 <h5>Return Path</h5>
                     <P>Once the outward path terminates, either due to the random selection
